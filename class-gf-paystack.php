@@ -390,28 +390,22 @@ class GFPaystack extends GFPaymentAddOn
     {
         ob_start();
         ?>
-        <a href="javascript:void(0);" onclick="tb_show('Webhook Instructions', '#TB_inline?width=500&inlineId=paystack-webhooks-instructions', '');" onkeypress="tb_show('Webhook Instructions', '#TB_inline?width=500&inlineId=paystack-webhooks-instructions', '');">
-        <?php esc_html_e('View Instructions', 'gravityformspaystack'); ?>
-        </a>
+        <p class="paystack-webhooks-description">
+            <?php esc_html_e('Configure webhooks to receive payment notifications:', 'gravityformspaystack'); ?>
         </p>
-
-        <div id="paystack-webhooks-instructions" style="display:none;">
-            <ol class="paystack-webhooks-instructions">
-                <li>
-                    <p><?php esc_html_e('Click the following link and log in to access your Paystack Webhooks management page:', 'gravityformspaystack'); ?> </p>
-                    <a href="https://dashboard.paystack.com/#/settings/developer" target="_blank">https://dashboard.paystack.com/#/settings/developer</a>
-                </li>
-                <li>
-                    <p>
-        <?php esc_html_e('Enter the following URL in the "Webhook URL" field:', 'gravityformspaystack'); ?>
-                        <br />
-                        <code><?php echo $this->get_webhook_url($this->get_current_feed_id()); ?></code>
-                    </p>
-                </li>
-                <li><?php esc_html_e('Save Changes.', 'gravityformspaystack'); ?></li>
-            </ol>
-        </div>
-
+        <ol class="paystack-webhooks-instructions" style="margin-left: 20px;">
+            <li>
+                <p><?php esc_html_e('Click the following link and log in to access your Paystack Webhooks management page:', 'gravityformspaystack'); ?></p>
+                <p><a href="https://dashboard.paystack.com/#/settings/developer" target="_blank" rel="noopener noreferrer">https://dashboard.paystack.com/#/settings/developer</a></p>
+            </li>
+            <li>
+                <p><?php esc_html_e('Enter the following URL in the "Webhook URL" field:', 'gravityformspaystack'); ?></p>
+                <p><code style="display: inline-block; padding: 8px 12px; background: #f0f0f1; border-radius: 4px; word-break: break-all;"><?php echo esc_url($this->get_webhook_url($this->get_current_feed_id())); ?></code></p>
+            </li>
+            <li>
+                <p><?php esc_html_e('Save Changes.', 'gravityformspaystack'); ?></p>
+            </li>
+        </ol>
         <?php
         return ob_get_clean();
     }
