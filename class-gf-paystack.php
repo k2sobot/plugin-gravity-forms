@@ -623,13 +623,13 @@ class GFPaystack extends GFPaymentAddOn
      */
     public function supported_billing_intervals()
     {
+        // Only return intervals supported by Paystack API: daily, weekly, monthly, quarterly, annually
         return array(
-        'hourly'   => array('label' => esc_html__('Hourly', 'gravityformspaystack')),
         'daily'    => array('label' => esc_html__('Daily', 'gravityformspaystack')),
         'weekly'   => array('label' => esc_html__('Weekly', 'gravityformspaystack')),
         'monthly'  => array('label' => esc_html__('Monthly', 'gravityformspaystack')),
-        'annually'   => array('label' => esc_html__('Annually', 'gravityformspaystack')),
-        'biannually' => array('label' => esc_html__('Biannually', 'gravityformspaystack')),
+        'quarterly' => array('label' => esc_html__('Quarterly', 'gravityformspaystack')),
+        'annually' => array('label' => esc_html__('Annually', 'gravityformspaystack')),
         );
     }
 
@@ -933,11 +933,11 @@ class GFPaystack extends GFPaymentAddOn
         //     'value' => $this->paystack_api->plugin_name
         // ];
 
-        $custom_data[] = [
+        $custom_data[] = array(
         'display_name' => 'Plugin Name',
         'variable_name' => 'plugin_name',
         'value' => 'pstk-gravityforms'
-        ];
+        );
 
         // Generate transaction reference
         $reference = uniqid("gf-{$entry['id']}-");
@@ -984,7 +984,7 @@ class GFPaystack extends GFPaymentAddOn
                 $args['invoice_limit'] = (int) $invoice_limit;
             }
 
-            $args['channels'] = ['card'];
+            $args['channels'] = array('card');
 
             gform_update_meta($entry['id'], 'paystack_plan_code', $plan['plan_code']);
         }
@@ -1009,7 +1009,7 @@ class GFPaystack extends GFPaymentAddOn
 
     public function get_fields_meta_data($feed, $entry, $fields)
     {
-        $data = [];
+        $data = array();
 
         foreach ($fields as $field) {
             $field_id = $feed['meta'][$field['meta_name']];
@@ -1160,7 +1160,7 @@ class GFPaystack extends GFPaymentAddOn
                 $reference = sanitize_text_field(rgget('reference'));
 
                 try {
-                    $response = $this->paystack_api->send_request("transaction/verify/{$reference}", [], 'get');
+                    $response = $this->paystack_api->send_request("transaction/verify/{$reference}", array(), 'get');
 
                     $this->log_debug(__METHOD__ . "(): Transaction verified. " . print_r($response, 1));
                 } catch (\Exception $e) {
@@ -1224,6 +1224,9 @@ class GFPaystack extends GFPaymentAddOn
      */
     public function callback()
     {
+        // Initialize action array to prevent undefined variable errors
+        $action = array();
+        
         if (!$this->is_gravityforms_supported()) {
             return;
         }
@@ -1245,9 +1248,10 @@ class GFPaystack extends GFPaymentAddOn
                 return false;
             }
 
-            $entry_id = rgars($event, 'data/metadata/entry_id');
+            // Sanitize entry_id from webhook metadata
+            $entry_id = absint(rgars($event, 'data/metadata/entry_id'));
 
-            if (!$entry_id && $reference = rgars($event, 'data/reference')) {
+            if (!$entry_id && $reference = sanitize_text_field(rgars($event, 'data/reference'))) {
                 $entry_id = $this->get_entry_id_by_reference($reference);
             }
 
@@ -1330,13 +1334,13 @@ class GFPaystack extends GFPaymentAddOn
             $action['payment_method']    = $this->_slug;
             $action['ready_to_fulfill'] = !$entry['is_fulfilled'] ? true : false;
 
-            $action['add_subscription_payment'] = [
+            $action['add_subscription_payment'] = array(
             'entry_id'        => $entry_id,
             'subscription_id' => rgars($subscription, 'data/subscription_code'),
             'transaction_id'  => rgar($transaction, 'id'),
             'amount'          => $this->get_amount_import(rgar($transaction, 'amount'), rgar($entry, 'currency')),
             'payment_method'  => $this->_slug
-            ];
+            );
 
             break;
         case 'subscription.disable':
@@ -1429,7 +1433,7 @@ class GFPaystack extends GFPaymentAddOn
 
                 $transaction = $subscription['data']['invoices'][$key];
             } else {
-                $transaction = $this->paystack_api->send_request("transaction/verify/{$reference}", [], 'get');
+                $transaction = $this->paystack_api->send_request("transaction/verify/{$reference}", array(), 'get');
             }
 
             $action['type']             = 'add_subscription_payment';
@@ -1581,7 +1585,7 @@ class GFPaystack extends GFPaymentAddOn
     public function get_plan($plan_id_or_code)
     {
         // Get Paystack plan.
-        $response = (object) $this->paystack_api->send_request("plan/{$plan_id_or_code}", [], 'get');
+        $response = (object) $this->paystack_api->send_request("plan/{$plan_id_or_code}", array(), 'get');
 
         $plan = $response->data;
 
@@ -1612,7 +1616,7 @@ class GFPaystack extends GFPaymentAddOn
         $amount = $this->get_amount_export($payment_amount, $currency);
 
         $recurring_times = (int) rgar($feed['meta'], 'recurringTimes');
-        $send_invoices = (int) rgar($feed['meta'], 'sendInvoices') == 1 ? 'true' : 'false';
+        $send_invoices = (bool) rgar($feed['meta'], 'sendInvoices');
 
         $args = array(
         'name'            => $name,
@@ -1662,7 +1666,7 @@ class GFPaystack extends GFPaymentAddOn
         $this->log_debug(__METHOD__ . '(): Getting subscription ' . $subscription_id_or_code);
 
         try {
-            $subscription = $this->paystack_api->send_request("subscription/{$subscription_id_or_code}", [], 'get');
+            $subscription = $this->paystack_api->send_request("subscription/{$subscription_id_or_code}", array(), 'get');
         } catch (\Exception $e) {
             $this->log_error(__METHOD__ . '(): Unable to get subscription. Reason: ' . $e->getMessage());
 
@@ -1713,11 +1717,11 @@ class GFPaystack extends GFPaymentAddOn
                     $field_value = substr($field_value, 0, 500);
 
                     // Add to metadata array.
-                    $metadata[] = [
+                    $metadata[] = array(
                     'display_name' => $meta['custom_key'],
                     'variable_name' => sanitize_title($meta['custom_key']),
                     'value' => $field_value,
-                    ];
+                    );
                 }
             }
 
