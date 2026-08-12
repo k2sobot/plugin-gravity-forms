@@ -636,13 +636,15 @@ class GFPaystack extends GFPaymentAddOn
      */
     public function supported_billing_intervals()
     {
-        // Only return intervals supported by Paystack API: daily, weekly, monthly, quarterly, annually
+        // Intervals supported by Paystack API: hourly, daily, weekly, monthly, quarterly, biannually, annually
         return array(
-        'daily'    => array('label' => esc_html__('Daily', 'gravityformspaystack')),
-        'weekly'   => array('label' => esc_html__('Weekly', 'gravityformspaystack')),
-        'monthly'  => array('label' => esc_html__('Monthly', 'gravityformspaystack')),
+        'hourly'    => array('label' => esc_html__('Hourly', 'gravityformspaystack')),
+        'daily'     => array('label' => esc_html__('Daily', 'gravityformspaystack')),
+        'weekly'    => array('label' => esc_html__('Weekly', 'gravityformspaystack')),
+        'monthly'   => array('label' => esc_html__('Monthly', 'gravityformspaystack')),
         'quarterly' => array('label' => esc_html__('Quarterly', 'gravityformspaystack')),
-        'annually' => array('label' => esc_html__('Annually', 'gravityformspaystack')),
+        'biannually' => array('label' => esc_html__('Biannually', 'gravityformspaystack')),
+        'annually'  => array('label' => esc_html__('Annually', 'gravityformspaystack')),
         );
     }
 
