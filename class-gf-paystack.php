@@ -1,6 +1,19 @@
 <?php
+/**
+ * Paystack Add-On for Gravity Forms
+ *
+ * @package     GF_Paystack
+ * @author      Paystack
+ * @copyright   2020 Paystack
+ * @license     GPL-2.0+
+ */
 
 defined('ABSPATH') || die();
+
+// Safety check: ensure Gravity Forms is loaded before including the framework.
+if (!class_exists('GFForms') || !method_exists('GFForms', 'include_payment_addon_framework')) {
+	return;
+}
 
 // Include the payment add-on framework.
 GFForms::include_payment_addon_framework();
