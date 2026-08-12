@@ -1,7 +1,14 @@
 <?php
-if (!defined('ABSPATH')) {
-    die('You are not allowed to call this page directly.');
-}
+/**
+ * Paystack API Class for Gravity Forms
+ *
+ * @package     GF_Paystack
+ * @author      Paystack
+ * @copyright   2020 Paystack
+ * @license     GPL-2.0+
+ */
+
+defined('ABSPATH') || die();
 
 class GFPaystackApi
 {
